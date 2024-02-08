@@ -2,8 +2,6 @@
 
 In this homework, we'll create a data workflow with Mage. More information can be found [here](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/cohorts/2024/02-workflow-orchestration/homework.md). If none of the options match, select the closest one.
 
-**Due date**: Feb. 8, 2024, 11 p.m.
-
 #### Due date: Feb. 8, 2024, 11 p.m.
 
 # ATTENTION
@@ -38,7 +36,7 @@ The goal will be to construct an ETL pipeline that loads the data, performs some
 
 ## Question 1. Data Loading
 Once the dataset is loaded, what's the shape of the data?
-- 266,855 rows x 20 columns
+- 266,855 rows x 20 columns (this is the answer)
 - 544,898 rows x 18 columns
 - 544,898 rows x 20 columns
 - 133,744 rows x 20 columns
@@ -47,20 +45,20 @@ Once the dataset is loaded, what's the shape of the data?
 Upon filtering the dataset where the passenger count is greater than 0 and the trip distance is greater than zero, how many rows are left?
 - 544,897 rows
 - 266,855 rows
-- 139,370 rows
+- 139,370 rows (this is the answer)
 - 266,856 rows
 
 ## Question 3. Data Transformation
 Which of the following creates a new column `lpep_pickup_date` by converting `lpep_pickup_datetime` to a date?
 - `data = data['lpep_pickup_datetime'].date`
 - `data('lpep_pickup_date') = data['lpep_pickup_datetime'].date`
-- `data['lpep_pickup_date'] = data['lpep_pickup_datetime'].dt.date`
+- `data['lpep_pickup_date'] = data['lpep_pickup_datetime'].dt.date` (this is the answer)
 - `data['lpep_pickup_date'] = data['lpep_pickup_datetime'].dt().date()`
 
 ## Question 4. Data Transformation
 What are the existing values of `VendorID` in the dataset?
 - 1, 2, or 3
-- 1 or 2
+- 1 or 2 (this is the answer)
 - 1, 2, 3, 4
 - 1
 
@@ -69,11 +67,11 @@ How many columns need to be renamed to snake case?
 - 3
 - 6
 - 2
-- 4
+- 4 (this is the answer)
 
 ## Question 6. Data Exporting
 Once exported, how many partitions (folders) are present in Google Cloud?
-- 96
+- 96 (this is the answer)
 - 56
 - 67
 - 108
@@ -225,4 +223,120 @@ def load_data_from_api(*args, **kwargs):
 and then click "Run block" button  
 
 ![Alt text](image.png)
+
+See the data, especially in column: tpep_pickup_datetime and tpep_dropoff_datetime, they look's already formatted properly:  
+
+![Alt text](image-2.png)
+
+### 3. Add Transformer
+Next, we do some transformation, so click on Transformer > Python > Generic (no template)
+
+Fill Transformer Name with "transform_taxi_data"  
+Click "Save and add" button  
+
+Edit transform_taxi_data transformer with this line:  
+```python
+@transformer
+def transform(data, *args, **kwargs):
+    print("Rows with zero passengers:", data['passenger_count'].isin([0]).sum())
+
+    return data[data['passenger_count'] > 0]
+```
+
+and then click "Run block" button  
+![Alt text](image-3.png)  
+
+and the result is like see in the image below:  
+![Alt text](image-5.png)  
+
+Then we will add @test in the bottom:  
+```python
+@test
+def test_output(output, *args):
+    assert output['passenger_count'].isin([0]).sum() == 0, 'There are rides with zero passengers'
+```  
+
+and then click "Run block" button  
+![Alt text](image-6.png)  
+
+### 4. Add Data exporter
+Next, we do some data exporter, so click on Data exporter > Python > PostgreSQL  
+
+Fill Data exporter Name with "taxi_data_to_postgres"  
+Click "Save and add" button  
+
+Modify Data exporter "taxi_data_to_postgres"  
+```python
+    schema_name = 'ny_taxi'  # Specify the name of the schema to export data to
+    table_name = 'yellow_cab_data'  # Specify the name of the table to export data to
+    config_path = path.join(get_repo_path(), 'io_config.yaml')
+    config_profile = 'dev'
+```  
+
+and then click "Run block" button  
+
+![Alt text](image-7.png)  
+
+### 5. Add Data loader
+Now, check if the data exists in database table:  
+Click on Data loader > SQL  
+
+Fill Data loader Name with "load_taxi_data"  
+Click "Save and add" button  
+
+In "Connection" select "PostgeSQL"  
+In "Profile" select "dev" (here is env that we set before in io_config.yaml file)
+
+Type (to check we are successful to load data into postreSQL database table):
+```sql
+SELECT * FROM ny_taxi.yellow_cab_data LIMIT 10
+```
+and then click "Run block" button  
+
+Here's the result:  
+
+![Alt text](image-8.png)  
+
+## 4. Configuring GCP
+### 1. Create new google cloud storage
+![Alt text](image-9.png)  
+
+Then, click CONTINUE button:  
+![Alt text](image-10.png)  
+
+Then, click CONTINUE button:  
+![Alt text](image-11.png)  
+
+Then, click CREATE button  
+
+### 2. Create new service account
+![Alt text](image-12.png)  
+
+### 3. Create new service account key
+![Alt text](image-13.png)  
+
+### 4. Copy json key into root project directory
+![Alt text](image-15.png)  
+
+Check from mage interface, go to http://localhost:6789
+Click Terminal and type  
+```bash
+ls -la
+```  
+So, we can see out google service account json key placed in there:  
+![Alt text](image-16.png)  
+
+navigate to menu: magic-zoomcamp > Files
+Klik and modify io_config.yaml file with modify this line:
+```yaml
+  # Google
+  GOOGLE_SERVICE_ACC_KEY_FILEPATH: "/home/src/sublime-iridium-411308-738c7cf6edc2.json"
+  GOOGLE_LOCATION: US # Optional
+```  
+
+Save change with [CTRL + S]  
+
+### 5. Check google cloud storage connection from mage
+Navigate to menu: magic-zoomcamp > Pipelines  
+Click on "test_config" > Edit pipeline  
 
