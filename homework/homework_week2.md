@@ -507,7 +507,7 @@ navigate to menu: magic-zoomcamp > Files
 Klik and modify io_config.yaml file with modify this line:
 ```yaml
   # Google
-  GOOGLE_SERVICE_ACC_KEY_FILEPATH: "/home/src/sublime-iridium-411308-738c7cf6edc2.json"
+  GOOGLE_SERVICE_ACC_KEY_FILEPATH: "/home/src/my-creds.json"
   GOOGLE_LOCATION: US # Optional
 ```  
 
