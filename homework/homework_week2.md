@@ -41,12 +41,86 @@ Once the dataset is loaded, what's the shape of the data?
 - 544,898 rows x 20 columns
 - 133,744 rows x 20 columns
 
+```python
+import io
+import pandas as pd
+import requests
+if 'data_loader' not in globals():
+    from mage_ai.data_preparation.decorators import data_loader
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+@data_loader
+def load_data_from_api(*args, **kwargs):
+    """
+    Template for loading data from API
+    """
+    # url = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/tag/green/download'
+    base_url = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2020-{}.csv.gz'
+
+    taxi_dtypes = {
+        'vendorID' : pd.Int64Dtype(),
+        'passenger_count' : pd.Int64Dtype(),
+        'trip_distance' : float,
+        'RatecodeID' : pd.Int64Dtype(),
+        'store_and_fwd_flag': str,
+        'PULocationID' : pd.Int64Dtype(),
+        'DOLocationID' : pd.Int64Dtype(),
+        'payment_type' : pd.Int64Dtype(),
+        'fare_amount' : float,
+        'extra': float,
+        'mta_tax' : float,
+        'tip_amount ': float,
+        'tolls_amount' : float,
+        'improvement_surcharge' : float,
+        'total_amount': float,
+        'congestion_surcharge': float
+    }
+
+    parse_dates = ['lpep_pickup_datetime', 'lpep_dropoff_datetime']
+    
+    # Initialize an empty list to store dataframes
+    dfs = []
+
+    # Loop through the final quarter months
+    for month in ['10', '11', '12']:
+   
+        # Construct the file URL for each month
+        file_url = base_url.format(month)
+        # Read the CSV file from the constructed URL
+        df = pd.read_csv(file_url, sep=',', compression='gzip', dtype=taxi_dtypes, parse_dates=parse_dates)
+        # Append the dataframe to the list
+        dfs.append(df)
+
+    # Concatenate all dataframes in the list
+    final_df = pd.concat(dfs, ignore_index=True)
+
+    return final_df
+        
+@test
+def test_output(output, *args) -> None:
+    """
+    Template code for testing the output of the block.
+    """
+    assert output is not None, 'The output is undefined'
+```
+
 ## Question 2. Data Transformation
 Upon filtering the dataset where the passenger count is greater than 0 and the trip distance is greater than zero, how many rows are left?
 - 544,897 rows
 - 266,855 rows
 - 139,370 rows (this is the answer)
 - 266,856 rows
+
+```python
+@transformer
+def transform(data, *args, **kwargs):
+    # Print the number of rows with zero passengers
+    print("Rows with zero passengers:", data['passenger_count'].isin([0]).sum())
+
+    # Print the number of rows with zero trip distance
+    print("Rows with zero trip distance:", data['trip_distance'].isin([0]).sum())
+```
 
 ## Question 3. Data Transformation
 Which of the following creates a new column `lpep_pickup_date` by converting `lpep_pickup_datetime` to a date?
@@ -55,12 +129,30 @@ Which of the following creates a new column `lpep_pickup_date` by converting `lp
 - `data['lpep_pickup_date'] = data['lpep_pickup_datetime'].dt.date` (this is the answer)
 - `data['lpep_pickup_date'] = data['lpep_pickup_datetime'].dt().date()`
 
+```python
+
+```
+
 ## Question 4. Data Transformation
 What are the existing values of `VendorID` in the dataset?
 - 1, 2, or 3
 - 1 or 2 (this is the answer)
 - 1, 2, 3, 4
 - 1
+
+```python
+@test
+def test_output(output, *args):
+    
+    # First, capture and print the unique vendor_ids for informational purposes
+    unique_vendor_ids = output['vendor_id'].unique()
+    print(f"Unique vendor_id values in the output: {unique_vendor_ids}")
+    
+    # Use an assertion to ensure this statement is always true; this is a bit unconventional
+    # since assertions are typically used for actual tests, not information display.
+    # This assertion will always pass unless there's an unexpected modification to the 'vendor_id' values.
+    assert set(unique_vendor_ids).issubset(set([1, 2, 3, 4])), "Detected unexpected vendor_id values."
+```
 
 ## Question 5. Data Transformation
 How many columns need to be renamed to snake case?
@@ -69,6 +161,10 @@ How many columns need to be renamed to snake case?
 - 2
 - 4 (this is the answer)
 
+```python
+
+```
+
 ## Question 6. Data Exporting
 Once exported, how many partitions (folders) are present in Google Cloud?
 - 96 (this is the answer)
@@ -76,7 +172,40 @@ Once exported, how many partitions (folders) are present in Google Cloud?
 - 67
 - 108
 
+```python
+import pyarrow as pa
+import pyarrow.parquet as pq
+import os
+
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+
+os.environ['GOOGLE_APPLICATION_CREDENTAILS'] = '/home/src/my-creds.json'
+
+bucket_name = 'demo-terra-bucket'
+project_id = 'sublime-iridium-411308'
+
+table_name = "green_taxi"
+
+root_path = f'{bucket_name}/{table_name}'
+
+@data_exporter
+def export_data(data, *args, **kwargs):
+    
+    table = pa.Table.from_pandas(data)
+
+    gcs = pa.fs.GcsFileSystem()
+
+    pq.write_to_dataset(
+        table,
+        root_path=root_path,
+        partition_cols=['lpep_pickup_date'],
+        filesystem=gcs
+    )
+```
+
 ### Homework URL  
+https://github.com/imansubarkahwork/dezoomcamp2024/blob/master/homework/homework_week2.md
 
 ### Learning in public links (optional)  
 
