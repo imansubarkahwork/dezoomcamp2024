@@ -166,7 +166,8 @@ Type (to know we able to connect with PostgreSQL):
 ```sql
 SELECT 1;
 ```
-and then click "Run block" button
+and then click "Run block" button  
+
 ![Alt text](image-1.png)
 
 ## 3. ETL: API to Postgres
@@ -221,6 +222,7 @@ def load_data_from_api(*args, **kwargs):
 
     return pd.read_csv(url, sep=",", compression="gzip", dtype=taxi_dtypes, parse_dates=parse_dates)
 ```
-and then click "Run block" button
+and then click "Run block" button  
+
 ![Alt text](image.png)
 
