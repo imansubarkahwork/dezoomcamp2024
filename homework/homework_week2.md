@@ -516,4 +516,3 @@ Save change with [CTRL + S]
 ### 5. Check google cloud storage connection from mage
 Navigate to menu: magic-zoomcamp > Pipelines  
 Click on "test_config" > Edit pipeline  
-
