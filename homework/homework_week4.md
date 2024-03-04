@@ -1,4 +1,6 @@
-# Question 1.
+# Homework 4: Analytics Engineering
+
+## Question 1.
 You'll need to have completed the "Build the first dbt models" video.
 
 What happens when we execute dbt build --vars '{'is_test_run':'true'}':
@@ -10,7 +12,7 @@ What happens when we execute dbt build --vars '{'is_test_run':'true'}':
 
 **Answer: It applies a limit 100 only to our staging models**
 
-# Question 2.
+## Question 2.
 What is the code that our CI job will run?
 
 - The code that has been merged into the main branch  
@@ -20,7 +22,7 @@ What is the code that our CI job will run?
 
 **Answer: The code from a development branch requesting a merge to main**  
 
-# Question 3.
+## Question 3.
 Setup:  
 Create a staging model for the fhv data, similar to the ones made for yellow and green data. Add an additional filter for keeping only records with pickup time in year 2019. Do not add a deduplication step. Run this models without limits (is_test_run: false).
 
@@ -37,7 +39,7 @@ What is the count of records in the model fact_fhv_trips after running all depen
 
 ![Alt text](image-30.png)  
 
-## Model:  
+### Model:  
 
 ```sql
 {{ config(materialized='table') }}
@@ -69,7 +71,7 @@ LIMIT 1000
 {% endif %}
 ```  
 
-# Question 4.
+## Question 4.
 Create a dashboard with some tiles that you find interesting to explore the data. One tile should show the amount of trips per month, as done in the videos for fact_trips, including the fact_fhv_trips data.  
 
 What is the service that had the most rides during the month of July 2019?  

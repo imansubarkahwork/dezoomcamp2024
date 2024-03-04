@@ -1,4 +1,6 @@
-# Preparation
+# Homework 1: Pre-Requisites (Docker, Terraform, SQL)
+
+## Preparation
 
 ## Data 1
 

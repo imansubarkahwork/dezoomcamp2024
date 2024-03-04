@@ -1,4 +1,4 @@
-# Module 3 Homework
+# Homework 3: Data Warehouse
 
 **ATTENTION:** At the end of the submission form, you will be required to include a link to your GitHub repository or other public code-hosting site. This repository should contain your code for solving the homework. If your solution includes code that is not in file format (such as SQL queries or shell commands), please include these directly in the README file of your repository.
 
