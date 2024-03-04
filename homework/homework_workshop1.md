@@ -20,7 +20,7 @@ D: 5.678551275463989
 **Here is my answer: 3.605551275463989**
 
 ## Question 3: Append the 2 generators. After correctly appending the data, calculate the sum of all ages of people.  
-A: 353  **(this is my answer)**
+A: 353  **(this is my answer)**  
 B: 365  
 C: 378  
 D: 390  
@@ -29,7 +29,7 @@ D: 390
 
 ## Question 4: Merge the 2 generators using the ID column. Calculate the sum of ages of all the people loaded as described above.  
 A: 215  
-B: 266  **(this is my answer)**
+B: 266  **(this is my answer)**  
 C: 241  
 D: 258  
 
